@@ -131,7 +131,7 @@ class Interpreter(val tokens: List[Token[Any]]) {
 
 @main def main(): Unit = {
     import Token.Type
-    val input: String = "(1 + 42)) * 3"
+    val input: String = "(1 + 42) * 3"
     val tokens: List[Token[Any]] = Lexer(input).lex()
     val result = Interpreter(tokens).expression()
     println(result)
