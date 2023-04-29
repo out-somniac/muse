@@ -1,50 +1,42 @@
 package muse
 
-import scala.collection.mutable.ListBuffer
-
-class Lexer(val text: String) {
-    import Token.Type
-
-    def lex(): List[Token[Any]] = {
-        val tokens = ListBuffer[Token[Any]]()
-        var position = 0
-        while( position < text.length) {
-            val current_char = text(position)
-            if(current_char.isWhitespace) position += 1
-            else if (current_char.isDigit) {
-                val begin: Int = position
-                while(position < text.length && text(position).isDigit) position += 1
-                tokens += Token(Type.Numerical, text.substring(begin, position).toInt)
-            }
-            else if (current_char == '+') {
-                position += 1
-                tokens += Token(Type.Plus, current_char.toString)
-            }    
-            else if (current_char == '-') {
-                position += 1
-                tokens += Token(Type.Minus, current_char.toString)
-            }
-            else if (current_char == '*') {
-                position += 1
-                tokens += Token(Type.Multiply, current_char.toString)
-            }
-            else if (current_char == '/') {
-                position += 1
-                tokens += Token(Type.Divide, current_char.toString)
-            }
-            else if (current_char == '(') {
-                position += 1
-                tokens += Token(Type.LeftParenthesis, current_char.toString)
-            }
-            else if (current_char == ')') {
-                position += 1
-                tokens += Token(Type.RightParenthesis, current_char.toString)
-            }
-            else {
-                throw new BadToken("Token not recognized!")
-            }
+class Lexer(val code: String) {
+    private var index = 0;
+    
+    def current_char: Option[Char] = {
+        if (index >= code.length) {
+            return None
         }
-        tokens += Token(Type.EOF, "<EOF>")
-        tokens.toList
+        return Some(code.charAt(index))
+    }
+
+    def next_char: Option[Char] = {
+        if (index + 1 >= code.length) {
+            return None
+        }
+        return Some(code.charAt(index + 1))
+    }
+
+    def advance(): Unit = {
+        index += 1
+    }
+
+    def next_token(): Option[Token] = {
+        while (current_char.isDefined) {
+            if (current_char.get.isLetter || current_char.get.isDigit) {
+                return id()
+            }
+            if (current_char.get == ":" && next_char.getOrElse("") == "=") {
+                advance()
+                advance()
+                return Token(Token.ASSIGN, ":=")
+            }
+            if (current_char.get == ";") {
+                advance()
+                return Token(Token.Semicolon, ";")
+            }   
+            
+        }
+        return None
     }
 }

@@ -1,10 +1,8 @@
 package muse
 
-
-@main def main(): Unit = {
-    import Token.Type
-    val input: String = "7 + 3 * (10 / (12 / (3 + 1) - 1)) / (2 + 3) - 5 - 3 + (8)"
-    val tokens: List[Token[Any]] = Lexer(input).lex()
-    val result = Interpreter(tokens).expression()
-    println(result)
+def main(args: Array[String]): Unit = {
+    import scala.io.Source._
+    val code: String = fromFile("tests/programs/main.mu").getLines.mkString
+    val lex = Lexer(code)
+    lex.next_token();
 }
