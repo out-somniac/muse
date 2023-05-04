@@ -21,22 +21,65 @@ class Lexer(val code: String) {
         index += 1
     }
 
-    def next_token(): Option[Token] = {
+    def skip_whitespace(): Unit = {
+        while(current_char.isDefined && current_char.get.isWhitespace) {
+            advance()
+        }
+    }
+
+    def integer(): Token = {
+        var result: String = ""
+        while (current_char.isDefined && current_char.get.isDigit) {
+            result += current_char.get
+            advance()
+        }
+        return Token(Token.Integer, result)
+    }
+
+    def id(): Token = {
+        var result: String = ""
+        while (current_char.isDefined && current_char.get.isLetterOrDigit) {
+            result += current_char.get
+            advance() 
+        }
+        // Check if result is a reserved keyword
+        return Token(Token.Id, result)
+    }
+
+    def next_token(): Token = {
         while (current_char.isDefined) {
-            if (current_char.get.isLetter || current_char.get.isDigit) {
+            if (current_char.get.isWhitespace) {
+                skip_whitespace()
+            }   
+
+            val current: Char = current_char.get
+            if (current.isLetter) {
                 return id()
             }
-            if (current_char.get == ":" && next_char.getOrElse("") == "=") {
-                advance()
-                advance()
-                return Token(Token.ASSIGN, ":=")
+            if (current.isDigit) {
+                return integer()
             }
-            if (current_char.get == ";") {
+            if (current == ':' && next_char.getOrElse(" ") == '=') {
                 advance()
-                return Token(Token.Semicolon, ";")
-            }   
-            
+                advance()
+                return Token(Token.Assign, ":=")
+            }
+
+            advance()
+            current match {
+                case ';' => return Token(Token.Semicolon, ";")
+                case '+' => return Token(Token.Plus, "+")
+                case '-' => return Token(Token.Minus, "-")
+                case '*' => return Token(Token.Multiply, "*")
+                case '/' => return Token(Token.Divide, "/")
+                case '(' => return Token(Token.LeftParenthesis, "(")
+                case ')' => return Token(Token.RightParenthesis, ")")
+                case '{' => return Token(Token.LeftBrace, "{")
+                case '}' => return Token(Token.RightBrace, "}") 
+            }
+            // TODO: Proper error handling
+            println("Did not expect this character")
         }
-        return None
+        return Token(Token.EOF, "EOF")
     }
 }

@@ -11,8 +11,13 @@ object Token:
     case object Minus extends Type
     case object Multiply extends Type
     case object Divide extends Type
-    case object ASSIGN extends Type
+    case object Assign extends Type
     case object Integer extends Type
-    case object ID extends Type
+    case object Id extends Type
+    case object EOF extends Type
 
-class Token(val tpe: Token.Type, val value: String)
+class Token(val tpe: Token.Type, val value: String) {
+    override def toString(): String = {
+        return s"Token($tpe, $value)"
+    }
+}
