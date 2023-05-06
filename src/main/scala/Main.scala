@@ -3,10 +3,9 @@ package muse
 def main(args: Array[String]): Unit = {
     import scala.io.Source._
     val code: String = fromFile("tests/programs/main.mu").getLines.mkString
-    val lex = Lexer(code)
-    var token: Token = lex.next_token()
-    while (token.tpe != Token.EOF) {
-        println(token)
-        token = lex.next_token()
-    }
+    val lexer = Lexer(code)
+    val parser = Parser(lexer)
+    val root: AST = parser.parse()
+    val interpreter: Interpreter = Interpreter(root)
+    
 }
