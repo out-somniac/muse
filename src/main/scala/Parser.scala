@@ -11,23 +11,23 @@ class Parser(lexer: Lexer) {
         }
     }
 
-    def program(): AST = {
+    def program(): StatementAST = {
         val node: CompoundAST = compound_statement()
         return node
     }
 
     def compound_statement(): CompoundAST = {
         eat(Token(Token.LeftBrace, "{"))
-        val nodes: List[AST] = statement_list()
+        val nodes: List[StatementAST] = statement_list()
         eat(Token(Token.RightBrace, "}"))
         return CompoundAST(nodes)
     }
 
-    def statement_list(): List[AST] = {
+    def statement_list(): List[StatementAST] = {
         import scala.collection.mutable.ListBuffer
         
-        var current: AST = statement()
-        var nodes = ListBuffer[AST](current)
+        var current: StatementAST = statement()
+        var nodes = ListBuffer[StatementAST](current)
         while (!current.isInstanceOf[EmptyStatementAST]) {
             current = statement()
             nodes += current
@@ -35,7 +35,7 @@ class Parser(lexer: Lexer) {
         return nodes.toList
     }
 
-    def statement(): AST = {
+    def statement(): StatementAST = {
         if (current_token.tpe == Token.LeftBrace) {
             return compound_statement()
         } else if (current_token.tpe == Token.Id) {
@@ -45,26 +45,26 @@ class Parser(lexer: Lexer) {
         }
     }
 
-    def assignmen_statement(): AST = {
-        val left: AST = variable()
+    def assignmen_statement(): StatementAST = {
+        val left: VariableAST = variable()
         val operator: Token = current_token
         eat(Token(Token.Assign, ":="))
-        val right: AST = expresion()
+        val right: EvaluatableAST = expresion()
         return AssignAST(left, operator, right)
     }
 
-    def variable(): AST = {
-        val node: AST = VariableAST(current_token)
+    def variable(): VariableAST = {
+        val node: VariableAST = VariableAST(current_token)
         eat(Token(Token.Id, ""))
         return node
     }
 
-    def empty_statement(): AST = {
+    def empty_statement(): EmptyStatementAST = {
         return EmptyStatementAST()
     }
 
-    def expresion(): AST = {
-        var node: AST = term()
+    def expresion(): EvaluatableAST = {
+        var node: EvaluatableAST = term()
         while (current_token.tpe == Token.Plus || current_token.tpe == Token.Minus) {
             val operator: Token = current_token
             eat(current_token)
@@ -73,8 +73,8 @@ class Parser(lexer: Lexer) {
         return node
     }
 
-    def term(): AST = {
-        var node: AST = factor()
+    def term(): EvaluatableAST = {
+        var node: EvaluatableAST = factor()
         while(current_token.tpe == Token.Multiply || current_token.tpe == Token.Divide) {
             val operator: Token = current_token
             eat(current_token)
@@ -83,7 +83,7 @@ class Parser(lexer: Lexer) {
         return node
     }
 
-    def factor(): AST = {
+    def factor(): EvaluatableAST = {
         val token: Token = current_token
         if (token.tpe == Token.Plus || token.tpe == Token.Minus) {
             eat(token)
@@ -95,7 +95,7 @@ class Parser(lexer: Lexer) {
         }
         if(token.tpe == Token.LeftParenthesis) {
             eat(token)
-            val node: AST = expresion()
+            val node: EvaluatableAST = expresion()
             eat(Token(Token.RightParenthesis, ")"))
             return node
         }
@@ -103,8 +103,8 @@ class Parser(lexer: Lexer) {
 
     }
 
-    def parse(): AST = {
-        val root: AST = program()
+    def parse(): StatementAST = {
+        val root: StatementAST = program()
         if (current_token.tpe != Token.EOF) {
             println("Something went wrong") // TODO: Error handling
         }

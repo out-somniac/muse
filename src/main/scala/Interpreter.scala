@@ -2,7 +2,7 @@ package muse
 
 import scala.collection.mutable.Map
 
-class Interpreter(val root: AST) {
+class Interpreter(val root: StatementAST) {
     private var global_state = Map[String, Int]()
     
     def show_tree(): Unit = {
@@ -10,7 +10,7 @@ class Interpreter(val root: AST) {
     }
 
     def interpret(): Map[String, Int] =  {
-        root.visit()
+        root.visit(global_state)
         return global_state
     }
 }
