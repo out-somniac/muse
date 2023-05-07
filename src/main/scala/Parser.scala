@@ -3,11 +3,11 @@ package muse
 class Parser(lexer: Lexer) {
     var current_token: Token = lexer.next_token()
     
-    def eat(token: Token): Unit = {
-        if (current_token.tpe == token.tpe) {
+    def eat(tpe: Token.Type): Unit = {
+        if (current_token.tpe == tpe) {
             current_token = lexer.next_token()
         } else {
-            println(s"Unexpected token: $token")
+            println(s"Unexpected token: $tpe")
         }
     }
 
@@ -17,9 +17,9 @@ class Parser(lexer: Lexer) {
     }
 
     def compound_statement(): CompoundAST = {
-        eat(Token(Token.LeftBrace, "{"))
+        eat(Token.LeftBrace)
         val nodes: List[StatementAST] = statement_list()
-        eat(Token(Token.RightBrace, "}"))
+        eat(Token.RightBrace)
         return CompoundAST(nodes)
     }
 
@@ -48,14 +48,14 @@ class Parser(lexer: Lexer) {
     def assignmen_statement(): StatementAST = {
         val left: VariableAST = variable()
         val operator: Token = current_token
-        eat(Token(Token.Assign, ":="))
+        eat(Token.Assign)
         val right: EvaluatableAST = expresion()
         return AssignAST(left, operator, right)
     }
 
     def variable(): VariableAST = {
         val node: VariableAST = VariableAST(current_token)
-        eat(Token(Token.Id, ""))
+        eat(Token.Id)
         return node
     }
 
@@ -67,7 +67,7 @@ class Parser(lexer: Lexer) {
         var node: EvaluatableAST = term()
         while (current_token.tpe == Token.Plus || current_token.tpe == Token.Minus) {
             val operator: Token = current_token
-            eat(current_token)
+            eat(current_token.tpe)
             node = BinaryOperatorAST(node, operator, term())
         }
         return node
@@ -77,7 +77,7 @@ class Parser(lexer: Lexer) {
         var node: EvaluatableAST = factor()
         while(current_token.tpe == Token.Multiply || current_token.tpe == Token.Divide) {
             val operator: Token = current_token
-            eat(current_token)
+            eat(current_token.tpe)
             node = BinaryOperatorAST(node, operator, factor())
         }
         return node
@@ -86,17 +86,17 @@ class Parser(lexer: Lexer) {
     def factor(): EvaluatableAST = {
         val token: Token = current_token
         if (token.tpe == Token.Plus || token.tpe == Token.Minus) {
-            eat(token)
+            eat(token.tpe)
             return UnaryOperatorAST(token, factor())
         }
         if (token.tpe == Token.Integer) {
-            eat(token)
+            eat(token.tpe)
             return IntegerAST(token)
         }
         if(token.tpe == Token.LeftParenthesis) {
-            eat(token)
+            eat(Token.LeftParenthesis)
             val node: EvaluatableAST = expresion()
-            eat(Token(Token.RightParenthesis, ")"))
+            eat(Token.RightParenthesis)
             return node
         }
         return variable()
