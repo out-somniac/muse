@@ -7,7 +7,7 @@ class Parser(lexer: Lexer) {
         if (current_token.tpe == tpe) {
             current_token = lexer.next_token()
         } else {
-            println(s"Unexpected token: $tpe")
+            throw ParserException(s"[Parser]${current_token.line_no}:${current_token.column} -> Expected token of type $tpe but found ${current_token}")
         }
     }
 
@@ -106,7 +106,7 @@ class Parser(lexer: Lexer) {
     def parse(): StatementAST = {
         val root: StatementAST = program()
         if (current_token.tpe != Token.EOF) {
-            println("Something went wrong") // TODO: Error handling
+            throw ParserException(s"[Parser]${current_token.line_no}:${current_token.column} -> Expected EOF but found ${current_token}")
         }
         return root
     }

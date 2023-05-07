@@ -18,6 +18,6 @@ object Token:
 
 class Token(val tpe: Token.Type, val value: String, val line_no: Int, val column: Int) {
     override def toString(): String = {
-        return s"$line_no:$column -> Token($tpe, $value)"
+        return s"Token($tpe, $value)"
     }
 }

@@ -49,7 +49,7 @@ class Lexer(val code: String) {
             result += current_char.get
             advance() 
         }
-        // Check if result is a reserved keyword
+        // Check if result is a reserved keyword otherise return identifier
         return Token(Token.Id, result, line_no, column)
     }
 
@@ -83,9 +83,8 @@ class Lexer(val code: String) {
                 case ')' => return Token(Token.RightParenthesis, ")", line_no, column)
                 case '{' => return Token(Token.LeftBrace, "{", line_no, column)
                 case '}' => return Token(Token.RightBrace, "}", line_no, column) 
+                case  _  => throw LexerException(s"[Lexer]$line_no:$column -> Unexpected character ${current_char.get}")  
             }
-            // TODO: Proper error handling
-            println("Did not expect this character")
         }
         return Token(Token.EOF, "EOF", line_no, column)
     }
