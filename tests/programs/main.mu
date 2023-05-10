@@ -14,7 +14,7 @@
     c := a + b
     a := b
     b := c
-    
+    /* This is a test comment */
     c := a + b
     a := b
     b := c

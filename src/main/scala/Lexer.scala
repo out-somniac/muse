@@ -34,6 +34,14 @@ class Lexer(val code: String) {
         }
     }
 
+    def skip_comment(): Unit = {
+        while(current_char.getOrElse('_') != '*' || next_char.getOrElse('_') != '/') {
+            advance()
+        }
+        advance()
+        advance()
+    }
+
     def integer(): Token = {
         var result: String = ""
         while (current_char.isDefined && current_char.get.isDigit) {
@@ -53,11 +61,23 @@ class Lexer(val code: String) {
         return Token(Token.Id, result, line_no, column)
     }
 
+    def skip_if_possible(): Boolean = {
+        if (current_char.get.isWhitespace) {
+            skip_whitespace()
+            return true
+        }
+        if (current_char.get == '/' && next_char.isDefined && next_char.get == '*') {
+            skip_comment()
+            return true
+        }
+        return false
+    }
+        
+
+
     def next_token(): Token = {
         while (current_char.isDefined) {
-            if (current_char.get.isWhitespace) {
-                skip_whitespace()
-            }   
+            while (skip_if_possible()) {}
 
             val current: Char = current_char.get
             if (current.isLetter) {
@@ -83,7 +103,7 @@ class Lexer(val code: String) {
                 case ')' => return Token(Token.RightParenthesis, ")", line_no, column)
                 case '{' => return Token(Token.LeftBrace, "{", line_no, column)
                 case '}' => return Token(Token.RightBrace, "}", line_no, column) 
-                case  _  => throw LexerException(s"[Lexer]$line_no:$column -> Unexpected character ${current_char.get}")  
+                case  _  => throw LexerException(s"[Lexer]$line_no:$column -> Unexpected character \"${current_char.get}\"")  
             }
         }
         return Token(Token.EOF, "EOF", line_no, column)
