@@ -89,7 +89,7 @@ class Parser(lexer: Lexer) {
             eat(token.tpe)
             return UnaryOperatorAST(token, factor())
         }
-        if (token.tpe == Token.Integer) {
+        if (token.tpe == Token.IntegerConst) {
             eat(token.tpe)
             return IntegerAST(token)
         }

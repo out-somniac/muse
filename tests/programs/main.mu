@@ -1,21 +1,11 @@
 {
-    a := 1
-    b := 1
-    c := -1
+    int a = 2
+    int b = 3
+    int c = a + b
 
-    c := a + b
-    a := b
-    b := c
-
-    c := a + b
-    a := b
-    b := c
-
-    c := a + b
-    a := b
-    b := c
     /* This is a test comment */
-    c := a + b
-    a := b
-    b := c
+
+    real r = 2.0
+    real pi = 3.14
+    real area = r * r * pi
 }

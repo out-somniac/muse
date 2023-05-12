@@ -1,9 +1,16 @@
 package muse
 
+import scala.collection.immutable.Map
+
 class Lexer(val code: String) {
+
     private var index = 0
     private var line_no = 1
     private var column = 0
+    private val reserved_keywords = Map[String, Token.Type](
+        "Int"  -> Token.TypeInteger,
+        "Real" -> Token.TypeReal
+    )
 
     def current_char: Option[Char] = {
         if (index >= code.length) {
@@ -42,13 +49,31 @@ class Lexer(val code: String) {
         advance()
     }
 
-    def integer(): Token = {
+    def numerical(): Token = {
+        def fractional_part(): String = {
+            var result: String = ""
+            while (current_char.isDefined && (current_char.get.isDigit || current_char == '.')) {
+                result += current_char.get
+                advance()
+            }
+            if (result.isEmpty)
+                throw LexerException(s"[Lexer] $line_no:$column -> Unexpected character \"${current_char.get}\". Expected digit.")  
+            }
+            return result
+        }
+
         var result: String = ""
         while (current_char.isDefined && current_char.get.isDigit) {
             result += current_char.get
             advance()
         }
-        return Token(Token.Integer, result, line_no, column)
+        if (current_char.isDefined && current_char.get == '.') {
+            result += current_char.get
+            advance()
+            result += fractional_part()
+            return Token(Token.RealConst, result, line_no, column)
+        }
+        return Token(Token.IntegerConst, result, line_no, column)
     }
 
     def id(): Token = {
@@ -57,8 +82,7 @@ class Lexer(val code: String) {
             result += current_char.get
             advance() 
         }
-        // Check if result is a reserved keyword otherise return identifier
-        return Token(Token.Id, result, line_no, column)
+        return Token(reserved_keywords.getOrElse(result, Token.Id), result, line_no, column)
     }
 
     def skip_if_possible(): Boolean = {
@@ -73,7 +97,6 @@ class Lexer(val code: String) {
         return false
     }
         
-
 
     def next_token(): Token = {
         while (current_char.isDefined) {
@@ -95,6 +118,7 @@ class Lexer(val code: String) {
             advance()
             current match {
                 case ';' => return Token(Token.Semicolon, ";", line_no, column)
+                case ':' => return Token(Token.Colon, ":", line_no, column)
                 case '+' => return Token(Token.Plus, "+", line_no, column)
                 case '-' => return Token(Token.Minus, "-", line_no, column)
                 case '*' => return Token(Token.Multiply, "*", line_no, column)
@@ -103,7 +127,7 @@ class Lexer(val code: String) {
                 case ')' => return Token(Token.RightParenthesis, ")", line_no, column)
                 case '{' => return Token(Token.LeftBrace, "{", line_no, column)
                 case '}' => return Token(Token.RightBrace, "}", line_no, column) 
-                case  _  => throw LexerException(s"[Lexer]$line_no:$column -> Unexpected character \"${current_char.get}\"")  
+                case  _  => throw LexerException(s"[Lexer] $line_no:$column -> Unexpected character \"${current_char.get}\"")  
             }
         }
         return Token(Token.EOF, "EOF", line_no, column)

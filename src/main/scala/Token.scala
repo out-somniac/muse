@@ -7,12 +7,16 @@ object Token:
     case object LeftBrace extends Type
     case object RightBrace extends Type
     case object Semicolon extends Type
+    case object Colon extends Type
     case object Plus extends Type
     case object Minus extends Type
     case object Multiply extends Type
     case object Divide extends Type
     case object Assign extends Type
-    case object Integer extends Type
+    case object IntegerConst extends Type
+    case object RealConst extends Type
+    case object TypeInteger extends Type
+    case object TypeReal extends Type
     case object Id extends Type
     case object EOF extends Type
 
